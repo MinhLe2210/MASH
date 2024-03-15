@@ -1,0 +1,4 @@
+bam: "../data/demo/inputs/chr21.small.bam"
+fai: "../data/demo/inputs/chr21.small.fa.fai"
+chr_names: ["chr21"]
+log_level: "Info"
