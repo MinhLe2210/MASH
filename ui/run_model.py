@@ -1,6 +1,5 @@
 import streamlit as st
 import torch
-import models.cue_net as models
 import os
 
 
@@ -25,22 +24,45 @@ def main():
     import streamlit as st
     st.title("TEST MODEL")
     
-    def get_data(url, payload):
-
-        return None
-    #Get chromosome name
-    list_chr = ["chr21 small", "chr22", "chrX"]
-    chr_name = st.selectbox('Select chromosome', list_chr)
-
+    def get_data():
+        chr_name = None
+        list_chr = ["all", "chr21 small", "chr22", "chrX"]
+        st.sidebar.header("Select data")
+        data_source = st.sidebar.radio("Choose Data Source:", ("Use Existing Data", "Upload Data"))
+        if data_source == "Use Existing Data":
+            chr_name = st.selectbox('Select chromosome', list_chr)
+            if chr_name == "all" :
+                chr_name = "null" 
+        elif data_source == "Upload Data":
+            bam_file = st.file_uploader('Upload your model', type=["bam"])
+            list_chr = ["all", "chr21 small", "chr22", "chrX"]
+            if bam_file is not None:
+                chr_name = st.selectbox('Select chromosome', list_chr)
+        return chr_name
+    
     #Get logging level
     logging_name = ['Info', 'Warnings', 'Errors']
     log_level = st.selectbox('Select log level', logging_name)
+    # Get data
+    chr_name = get_data()
+    if chr_name is not None:
+        # Dynamically generate paths based on chr_name
+        chr_name = chr_name.replace(' ', '.')
+        bam_path = f"../data/demo/inputs/{chr_name}.bam"
+        fai_path = f"../data/demo/inputs/{chr_name}.fa.fai"
+        first_name = chr_name.split('.')[0]
 
-    # Dynamically generate paths based on chr_name
-    chr_name = chr_name.replace(' ', '.')
-    bam_path = f"../data/demo/inputs/{chr_name}.bam"
-    fai_path = f"../data/demo/inputs/{chr_name}.fa.fai"
-    first_name = chr_name.split('.')[0]
+        # Get input data to yamlfile
+        # yaml_content = f"bam: \"{bam_path}\"\n"
+        # yaml_content += f"fai: \"{fai_path}\"\n"
+        # yaml_content += f"chr_names: [\"{first_name}\"]\n"
+        # yaml_content += f"log_level: \"{log_level}\"\n"
+        # save_file_yaml(yaml_content, f"data_config.yaml")
+        
+
+    
+
+    
 
     #Get model
     model_file = st.file_uploader('Upload your model', type=['h5', 'pkl', 'joblib', 'pickle', 'pt', 'pth'])
@@ -63,12 +85,7 @@ def main():
         st.success('Model file has been saved to your local machine.')
 
 
-    # Get input data to yamlfile
-    yaml_content = f"bam: \"{bam_path}\"\n"
-    yaml_content += f"fai: \"{fai_path}\"\n"
-    yaml_content += f"chr_names: [\"{first_name}\"]\n"
-    yaml_content += f"log_level: \"{log_level}\"\n"
-    save_file_yaml(yaml_content, f"data_config.yaml")
+    
     
     # Save to YAML file
     # dir_path = '../data/demo'
